@@ -1,0 +1,47 @@
+﻿@model IEnumerable<Seasonless.Models.CustomerSummary>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Customer Summaries</h2>
+<p>
+    <a asp-action="Index" asp-controller="Customers">Back to Customers</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Customer)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Season)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Credit)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalRepaid)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Customer.CustomerName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Season.SeasonName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Credit)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TotalRepaid)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

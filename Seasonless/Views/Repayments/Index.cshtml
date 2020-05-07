@@ -1,0 +1,55 @@
+﻿@model IEnumerable<Seasonless.Models.Repayment>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Repayments</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Customer)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Season)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ParentRepayment)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Customer.CustomerName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Season.SeasonName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Date)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Amount)
+                </td>
+
+                <td>
+                    @if (item.ParentID != null)
+                    {
+                        @Html.ActionLink("View Parent Repayment", "Details", new { id = item.ParentID })
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

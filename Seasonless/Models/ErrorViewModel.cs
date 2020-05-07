@@ -1,5 +1,3 @@
-using System;
-
 namespace Seasonless.Models
 {
     public class ErrorViewModel
