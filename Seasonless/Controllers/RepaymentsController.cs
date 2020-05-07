@@ -32,15 +32,12 @@ namespace Seasonless.Controllers
                 }
             }
 
-            var data = JsonConvert.DeserializeObject<DataViewModel>(fileContents);
-
-            await _context.AddRangeAsync(data.CustomerSummaries);
-            await _context.SaveChangesAsync();
+            var repaymentUploads = JsonConvert.DeserializeObject<List<RepaymentUpload>>(fileContents);
 
             var repayments = new List<Repayment>();
-            for (var index = 0; index < data.RepaymentUploads.Count; index++)
+            for (var index = 0; index < repaymentUploads.Count; index++)
             {
-                repayments.AddRange(_context.ProcessPaymentAt(data.RepaymentUploads, index));
+                repayments.AddRange(_context.ProcessPaymentAt(repaymentUploads, index));
             }
 
             return RedirectToAction(nameof(Index), repayments);
@@ -51,7 +48,6 @@ namespace Seasonless.Controllers
         {
             _context.Repayments.RemoveRange(_context.Repayments);
             _context.RepaymentUploads.RemoveRange(_context.RepaymentUploads);
-            _context.Summaries.RemoveRange(_context.Summaries);
 
             await _context.SaveChangesAsync();
 

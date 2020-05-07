@@ -33,6 +33,12 @@ namespace Seasonless.Data
                     context.AddRange(data.Seasons);
                     context.SaveChanges();
                 }
+
+                if (!context.Summaries.Any())
+                {
+                    context.AddRange(data.CustomerSummaries);
+                    context.SaveChanges();
+                }
             }
         }
 
