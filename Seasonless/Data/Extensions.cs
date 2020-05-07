@@ -55,7 +55,7 @@ namespace Seasonless.Data
                     e.CustomerID == payment.CustomerID && e.SeasonID == payment.SeasonID);
 
                 //Check if an existing customer has a dept in existing season.
-                if (summary != null && summary.RemainingCredit > 0)
+                if (summary != null)
                 {
                     //Add full amount to the customer summary with specified customer Id
                     //and season Id.
