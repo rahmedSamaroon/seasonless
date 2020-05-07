@@ -34,6 +34,9 @@ namespace Seasonless.Controllers
 
             var data = JsonConvert.DeserializeObject<DataViewModel>(fileContents);
 
+            await _context.AddRangeAsync(data.CustomerSummaries);
+            await _context.SaveChangesAsync();
+
             var repayments = new List<Repayment>();
             for (var index = 0; index < data.RepaymentUploads.Count; index++)
             {
@@ -48,6 +51,7 @@ namespace Seasonless.Controllers
         {
             _context.Repayments.RemoveRange(_context.Repayments);
             _context.RepaymentUploads.RemoveRange(_context.RepaymentUploads);
+            _context.Summaries.RemoveRange(_context.Summaries);
 
             await _context.SaveChangesAsync();
 
