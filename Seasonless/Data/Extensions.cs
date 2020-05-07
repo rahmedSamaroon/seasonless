@@ -50,8 +50,9 @@ namespace Seasonless.Data
             }
         }
 
-        public static void ProcessPaymentAt(this AppDb context, IList<RepaymentUpload> uploads, int index)
+        public static List<Repayment> ProcessPaymentAt(this AppDb context, IList<RepaymentUpload> uploads, int index)
         {
+            var repayments = new List<Repayment>();
             var payment = uploads[index];
             if (!context.Exists<Customer>(c => c.CustomerID == payment.CustomerID))
             {
@@ -59,7 +60,7 @@ namespace Seasonless.Data
                 payment.Reason = Reason.NoCustomer;
                 context.Add(payment);
                 context.SaveChanges();
-                return;
+                return repayments;
             }
 
             if (payment.SeasonID != 0 && context.Exists<Season>(s => s.SeasonID == payment.SeasonID))
@@ -75,25 +76,29 @@ namespace Seasonless.Data
                     context.UpdateSummary(summary, payment.Amount);
 
                     //Create a single repayment record
-                    context.AddRepayment(payment, payment.SeasonID);
+                    repayments.Add(context.AddRepayment(payment, payment.SeasonID));
                 }
                 else
                 {
                     //Process as seasonless
                     payment.SeasonID = 0;
-                    context.ProcessSeasonlessPayment(payment);
+                    repayments.AddRange(context.ProcessSeasonlessPayment(payment));
                 }
             }
             else
             {
-                context.ProcessSeasonlessPayment(payment);
+                repayments.AddRange(context.ProcessSeasonlessPayment(payment));
             }
+
+            return repayments;
         }
 
-        public static void ProcessSeasonlessPayment(this AppDb context, RepaymentUpload payment)
+        public static List<Repayment> ProcessSeasonlessPayment(this AppDb context, RepaymentUpload payment)
         {
             int? parentId = null;
             var amount = payment.Amount;
+
+            var repayments = new List<Repayment>();
 
             //Get the customer summaries
             var summaries = context.Summaries
@@ -113,7 +118,7 @@ namespace Seasonless.Data
                 context.UpdateSummary(summary, payment.Amount);
 
                 //Create a single repayment record
-                context.AddRepayment(payment, summary.SeasonID);
+                repayments.Add(context.AddRepayment(payment, summary.SeasonID));
             }
             else if (summaries.Any(e => e.Credit != e.TotalRepaid))
             {
@@ -124,15 +129,17 @@ namespace Seasonless.Data
                     if (amount <= remainingCredit)
                     {
                         context.UpdateSummary(summary, amount);
-                        context.AddRepayment(payment, summary.SeasonID, amount, parentId);
+                        repayments.Add(context.AddRepayment(payment, summary.SeasonID, amount, parentId));
                         break;
                     }
 
                     if (!parentId.HasValue)
                     {
                         context.UpdateSummary(summary, remainingCredit);
-                        parentId = context.AddRepayment(payment, summary.SeasonID, amount);
+                        var repayment = context.AddRepayment(payment, summary.SeasonID, amount);
+                        repayments.Add(repayment);
 
+                        parentId = repayment.RepaymentID;
                         amount -= remainingCredit;
 
                         //Add adjustment record
@@ -143,15 +150,17 @@ namespace Seasonless.Data
                         context.UpdateSummary(summary, remainingCredit);
 
                         //Add adjustment record
-                        context.AddRepayment(payment, summary.SeasonID, remainingCredit, parentId);
+                        repayments.Add(context.AddRepayment(payment, summary.SeasonID, remainingCredit, parentId));
 
                         amount -= remainingCredit;
                     }
                 }
             }
+
+            return repayments;
         }
 
-        public static int AddRepayment(this DbContext context, RepaymentUpload payment, int seasonId, int? amount = null, int? parentId = null)
+        public static Repayment AddRepayment(this DbContext context, RepaymentUpload payment, int seasonId, int? amount = null, int? parentId = null)
         {
             var repayment = new Repayment
             {
@@ -169,7 +178,7 @@ namespace Seasonless.Data
 
             context.SaveChanges();
 
-            return repayment.RepaymentID;
+            return repayment;
         }
 
         public static void UpdateSummary(this DbContext context, CustomerSummary summary, int amount)

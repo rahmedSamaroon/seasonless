@@ -22,18 +22,6 @@ namespace Seasonless.Controllers
             return View(await _context.Customers.ToListAsync());
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Upload([FromForm] Models.DataViewModel upload)
-        {
-            foreach (var customer in upload.Customers)
-            {
-                _context.Add(customer);
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
         // GET: Customers/Create
         public IActionResult Create()
         {

@@ -1,8 +1,13 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Seasonless.Data;
+using Seasonless.Models;
 
 namespace Seasonless.Controllers
 {
@@ -13,6 +18,40 @@ namespace Seasonless.Controllers
         public RepaymentsController(AppDb context)
         {
             _context = context;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Upload([FromForm(Name = "data")] IFormFile file)
+        {
+            string fileContents;
+            using (var stream = file.OpenReadStream())
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    fileContents = await reader.ReadToEndAsync();
+                }
+            }
+
+            var data = JsonConvert.DeserializeObject<DataViewModel>(fileContents);
+
+            var repayments = new List<Repayment>();
+            for (var index = 0; index < data.RepaymentUploads.Count; index++)
+            {
+                repayments.AddRange(_context.ProcessPaymentAt(data.RepaymentUploads, index));
+            }
+
+            return RedirectToAction(nameof(Index), repayments);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Reset()
+        {
+            _context.Repayments.RemoveRange(_context.Repayments);
+            _context.RepaymentUploads.RemoveRange(_context.RepaymentUploads);
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Repayments

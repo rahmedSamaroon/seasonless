@@ -1,0 +1,25 @@
+﻿<div class="row">
+    <div class="col-md-6">
+        <h4>Upload</h4>
+        <hr />
+        <form asp-action="Upload" enctype="multipart/form-data" method="post">
+            <div class="form-group">
+                <label class="control-label">File</label>
+                <input name="data" type="file" class="form-control" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Upload" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-6">
+        <h4>Reset Database</h4>
+        <hr />
+        <form asp-action="Reset" method="post">
+            <div class="form-group">
+                <input type="submit" value="Reset" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
