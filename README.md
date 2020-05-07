@@ -20,14 +20,14 @@ One thing that I would consider is the repayment adjustustments are done. What I
 If a client starts out with 2 seasons of outstanding credit (debt):
 
 -	CustomerSummary (Client owes 20)
--	Season = 2011
--	TotalRepaid = 80
--	TotalCredit = 100
+    -	Season = 2011
+    -	TotalRepaid = 80
+    -	TotalCredit = 100
 
 -	CustomerSummary (Client owes 90)
--	Season = 2012
--	TotalRepaid = 30
--	TotalCredit = 120
+    -	Season = 2012
+    -	TotalRepaid = 30
+    -	TotalCredit = 120
 
 When the client makes a payment of 60, we would expect to save 2 repayment records:
 
